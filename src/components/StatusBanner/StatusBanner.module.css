@@ -1,0 +1,56 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 8px;
+  min-height: 30px;
+  padding: 7px 18px;
+  border-bottom: 1px solid #e2ede6;
+  background: #f0f7f2;
+  color: #4e735e;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.banner svg {
+  flex-shrink: 0;
+}
+
+.banner > span {
+  overflow-wrap: anywhere;
+}
+
+.banner[data-state='reconnecting'],
+.banner[data-state='connecting'] {
+  border-color: #ece4ce;
+  color: #80622a;
+  background: #fff9e9;
+}
+
+.banner[data-state='error'],
+.banner[data-state='disconnected'] {
+  border-color: #f0d6ce;
+  color: #943d2d;
+  background: #fff5f1;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #4c9764;
+}
+
+.banner button {
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,0 +1,107 @@
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: min(78%, 560px);
+  margin: 7px 0;
+}
+
+.message[data-direction='outgoing'] {
+  align-items: flex-end;
+  align-self: flex-end;
+}
+
+.bubble {
+  max-width: 100%;
+  padding: 13px 16px 9px;
+  border: 1px solid #e4e9e8;
+  border-radius: 15px 15px 15px 4px;
+  background: white;
+  box-shadow: 0 2px 4px #223f3a03;
+}
+
+.message[data-direction='outgoing'] .bubble {
+  border-color: #d8e9de;
+  border-radius: 15px 15px 4px 15px;
+  background: #e6f2e9;
+}
+
+.bubble[data-failed='true'] {
+  border-color: #dcb39b !important;
+}
+
+.text {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 7px;
+  color: #607267;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.status[data-state='read'] {
+  color: #217348;
+}
+
+.status[data-state='failed'],
+.status[data-state='noAccount'],
+.status[data-state='unknown'] {
+  color: #904721;
+}
+
+.failure {
+  max-width: 100%;
+  margin-top: 6px;
+  color: #8e4d30;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: right;
+}
+
+.failure p {
+  margin: 0 0 3px;
+  overflow-wrap: anywhere;
+}
+
+.failure button {
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: #80422b;
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .message {
+    max-width: 88%;
+  }
+
+  .text {
+    font-size: 14px;
+  }
+
+  .failure button {
+    min-height: 35px;
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,19 @@
+.avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid #dce9e5;
+  border-radius: 15px;
+  background: #eaf1ef;
+  color: #497564;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.large {
+  width: 48px;
+  height: 48px;
+  font-size: 15px;
+}
