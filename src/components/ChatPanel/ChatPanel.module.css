@@ -53,14 +53,14 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  background: #f4f7f6;
+  background: #efeae2;
 }
 
 .messages {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px;
+  padding: 20px 28px;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -194,7 +194,7 @@
   }
 
   .messages {
-    padding: 12px;
+    padding: 12px 20px;
   }
 
   .composer {
