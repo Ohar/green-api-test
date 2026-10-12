@@ -60,10 +60,6 @@ textarea::placeholder {
   opacity: 1;
 }
 
-button svg {
-  flex-shrink: 0;
-}
-
 .workspace {
   display: grid;
   grid-template-columns: 330px minmax(0, 1fr);
@@ -109,16 +105,6 @@ button svg {
   overflow-wrap: anywhere;
 }
 
-.spinner {
-  display: inline-block;
-  width: 17px;
-  height: 17px;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spin 800ms linear infinite;
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -128,12 +114,6 @@ button svg {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @media (min-width: 1441px) {

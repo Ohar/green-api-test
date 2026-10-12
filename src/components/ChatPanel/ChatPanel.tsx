@@ -1,8 +1,6 @@
 import { Fragment, useId } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { MAX_MESSAGE_LENGTH } from '../../core/constants'
-import { Avatar } from '../Avatar'
-import { Icon } from '../Icon'
 import { MessageBubble } from '../MessageBubble'
 import { dayLabel } from './helpers/dayLabel'
 import { useComposer } from './hooks/useComposer'
@@ -61,20 +59,8 @@ export function ChatPanel({
 
   if (!chat) {
     return (
-      <section className={styles.welcome}>
-        <span className={styles.welcomeIcon}>
-          <Icon name="message" size={42} />
-        </span>
-        <p className={styles.eyebrow}>НАЧНИТЕ С «ПРИВЕТ»</p>
-        <h2>Место для ваших разговоров</h2>
-        <p className={styles.welcomeText}>
-          Выберите диалог слева или создайте новый чат
-          по номеру телефона собеседника.
-        </p>
-        <span className={styles.welcomeNote}>
-          <Icon name="lock" size={14} />
-          Сообщения хранятся только в этой сессии
-        </span>
+      <section className={styles.panel}>
+        <p className={styles.empty}>Выберите чат</p>
       </section>
     )
   }
@@ -88,14 +74,12 @@ export function ChatPanel({
           onClick={onBack}
           aria-label="Назад к диалогам"
         >
-          <Icon name="back" />
+          Назад
         </button>
-        <Avatar label={chat.name || chat.phone || chat.chatId} />
         <div className={styles.contact}>
           <h2>{chat.name || chat.phone || chat.chatId}</h2>
-          <p>{chat.phone || `ID: ${chat.chatId}`} · Telegram</p>
+          <p>{chat.phone || `ID: ${chat.chatId}`}</p>
         </div>
-        <span className={styles.headerBadge}>Личный чат</span>
       </header>
       <div className={styles.history}>
         <a className={styles.historyJump} href={`#${fieldId}-messages`}>
@@ -112,15 +96,8 @@ export function ChatPanel({
           aria-relevant="additions text"
           tabIndex={-1}
         >
-          <p className={styles.historyNote}>
-            Здесь отображаются сообщения, полученные в этой сессии
-          </p>
           {messages.length === 0 ? (
-            <div className={styles.empty}>
-              <Icon name="message" size={30} />
-              <h3>Начните разговор</h3>
-              <p>Напишите первое сообщение собеседнику.</p>
-            </div>
+            <p className={styles.empty}>Нет сообщений</p>
           ) : messages.map((message, index) => {
             const day = dayLabel(message.timestamp,
               messages[index - 1]?.timestamp)
@@ -140,18 +117,11 @@ export function ChatPanel({
             onClick={scrollToBottom}
           >
             {hasNewMessages ? 'Новые сообщения' : 'К последним'}
-            <Icon name="chevron" size={16} />
           </button>
         )}
       </div>
-      <footer className={styles.composer}>
+      <div className={styles.composer}>
         {error && <p className="form-error" role="alert">{error}</p>}
-        {disabled && (
-          <p className={styles.disabledNote} role="status">
-            Отправка доступна после восстановления подключения.
-            Черновик можно продолжать редактировать.
-          </p>
-        )}
         <form onSubmit={handleSend} className={styles.composeForm}>
           <label htmlFor={`${fieldId}-message`} className="sr-only">
             Сообщение
@@ -162,7 +132,7 @@ export function ChatPanel({
             value={draft}
             placeholder="Напишите сообщение…"
             rows={1}
-            aria-describedby={`${fieldId}-help`}
+            aria-describedby={tooLong ? `${fieldId}-limit` : undefined}
             aria-invalid={tooLong}
             onChange={(event) => onDraftChange(event.target.value)}
             onKeyDown={handleKeyDown}
@@ -176,22 +146,19 @@ export function ChatPanel({
             aria-label={sending ? 'Отправляем сообщение' : 'Отправить'}
             title="Отправить сообщение"
           >
-            {sending ? <span className="spinner" />
-              : <Icon name="send" size={20} />}
+            {sending ? 'Отправка…' : 'Отправить'}
           </button>
         </form>
-        <div id={`${fieldId}-help`} className={styles.composerHelp}>
-          <span>Enter — отправить · Shift + Enter — новая строка</span>
-          <span data-invalid={tooLong}>
-            {draft.length} / {MAX_MESSAGE_LENGTH}
-          </span>
-        </div>
         {tooLong && (
-          <p className={styles.limitError} role="alert">
+          <p
+            id={`${fieldId}-limit`}
+            className={styles.limitError}
+            role="alert"
+          >
             Сократите сообщение до {MAX_MESSAGE_LENGTH} символов.
           </p>
         )}
-      </footer>
+      </div>
     </section>
   )
 }

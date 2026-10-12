@@ -1,4 +1,3 @@
-import { Icon } from '../Icon'
 import { statusLabels } from './constants/statuses'
 import type { StatusBannerProps } from './index'
 import styles from './StatusBanner.module.css'
@@ -8,6 +7,10 @@ export function StatusBanner({
   message,
   onRetry,
 }: StatusBannerProps) {
+  if (status === 'connected' && !message) {
+    return null
+  }
+
   return (
     <div
       className={styles.banner}
@@ -15,9 +18,6 @@ export function StatusBanner({
       role="status"
       aria-live="polite"
     >
-      {status === 'connected'
-        ? <span className={styles.dot} />
-        : <Icon name="info" size={15} />}
       <span>{message || statusLabels[status]}</span>
       {onRetry && status === 'error' && (
         <button type="button" onClick={onRetry}>

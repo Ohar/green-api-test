@@ -13,10 +13,6 @@
   line-height: 1.5;
 }
 
-.banner svg {
-  flex-shrink: 0;
-}
-
 .banner > span {
   overflow-wrap: anywhere;
 }
@@ -33,14 +29,6 @@
   border-color: #f0d6ce;
   color: #943d2d;
   background: #fff5f1;
-}
-
-.dot {
-  width: 5px;
-  height: 5px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #4c9764;
 }
 
 .banner button {

@@ -10,9 +10,9 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  gap: 13px;
-  min-height: 79px;
-  padding: 15px 29px;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   background: white;
 }
@@ -22,10 +22,10 @@
 }
 
 .contact h2 {
-  margin: 0 0 6px;
+  margin: 0 0 5px;
   overflow: hidden;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -34,31 +34,17 @@
   margin: 0;
   overflow: hidden;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.headerBadge {
-  flex-shrink: 0;
-  margin-left: auto;
-  padding: 6px 9px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 10px;
 }
 
 .back {
   display: none;
   flex-shrink: 0;
-  place-items: center;
-  width: 38px;
-  height: 40px;
-  margin-left: -5px;
-  padding: 0;
+  min-height: 40px;
+  padding: 6px;
   border: 0;
-  border-radius: 7px;
   background: transparent;
   color: var(--ink);
 }
@@ -67,16 +53,14 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  background-color: #f4f7f6;
-  background-image: radial-gradient(#cddbd457 0.8px, transparent 0.8px);
-  background-size: 17px 17px;
+  background: #f4f7f6;
 }
 
 .messages {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px 34px 24px;
+  padding: 20px;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -100,76 +84,46 @@
   width: auto;
   height: auto;
   padding: 9px 12px;
-  border-radius: 7px;
+  border-radius: 6px;
   clip-path: none;
   background: white;
   color: var(--green-dark);
   font-size: 12px;
 }
 
-.historyNote {
-  align-self: center;
-  max-width: 100%;
-  margin: 0 0 18px;
-  color: #75857b;
-  font-size: 10px;
-  line-height: 1.8;
-  text-align: center;
-}
-
 .day {
   align-self: center;
   flex-shrink: 0;
-  margin: 12px 0 18px;
-  padding: 6px 12px;
-  border: 1px solid #e0e8e3;
-  border-radius: 7px;
-  background: #f9fbfa;
-  color: #6a7c70;
-  font-size: 10px;
-}
-
-.empty {
-  margin: auto;
-  padding: 25px;
-  color: #7c9385;
-  text-align: center;
-}
-
-.empty h3 {
-  margin: 17px 0 9px;
-  color: #486251;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.empty p {
-  margin: 0;
+  margin: 0 0 16px;
   color: var(--muted);
   font-size: 12px;
 }
 
+.empty {
+  margin: auto;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
 .scrollButton {
   position: absolute;
-  right: 24px;
+  right: 16px;
   bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 13px;
-  border: 1px solid #c5dfd0;
-  border-radius: 20px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   color: var(--green-dark);
   background: white;
-  font-size: 11px;
-  box-shadow: 0 4px 16px #263f3712;
+  font-size: 12px;
 }
 
 .composer {
   display: grid;
   flex-shrink: 0;
   gap: 9px;
-  padding: 19px 28px 15px;
+  padding: 16px;
   border-top: 1px solid var(--border);
   background: white;
 }
@@ -177,7 +131,7 @@
 .composeForm {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -188,21 +142,14 @@
   min-width: 0;
   min-height: 45px;
   max-height: 112px;
-  padding: 12px 14px;
+  padding: 10px;
   resize: none;
   border: 1px solid #dce5e1;
-  border-radius: 11px;
-  background: #f9fbfa;
-  color: var(--ink);
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.composeForm textarea:focus {
-  border-color: #7fb198;
-  outline: 2px solid #e4f1e9;
-  outline-offset: 0;
+  border-radius: 6px;
   background: white;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.55;
 }
 
 .composeForm textarea[aria-invalid='true'] {
@@ -210,15 +157,14 @@
 }
 
 .send {
-  display: grid;
   flex-shrink: 0;
-  width: 45px;
-  height: 45px;
-  place-items: center;
+  min-height: 45px;
+  padding: 10px 12px;
   border: 0;
-  border-radius: 11px;
+  border-radius: 6px;
   color: white;
   background: var(--green);
+  font-size: 13px;
 }
 
 .send:hover:not(:disabled) {
@@ -231,134 +177,31 @@
   opacity: 1;
 }
 
-.composerHelp {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  padding-right: 58px;
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.5;
-}
-
-.composerHelp > span:last-child {
-  flex-shrink: 0;
-}
-
-.composerHelp [data-invalid='true'],
 .limitError {
+  margin: 0;
   color: #a0442d;
-}
-
-.limitError,
-.disabledNote {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.7;
-}
-
-.disabledNote {
-  color: #80622a;
-}
-
-.welcome {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 40px;
-  background: #f6f9f7;
-  text-align: center;
-}
-
-.welcomeIcon {
-  display: grid;
-  width: 92px;
-  height: 92px;
-  place-items: center;
-  margin-bottom: 32px;
-  border: 1px solid #d7e6dc;
-  border-radius: 28px;
-  background: #eaf3ed;
-  color: #5e9370;
-  transform: rotate(-6deg);
-}
-
-.welcomeIcon svg {
-  transform: rotate(6deg);
-}
-
-.eyebrow {
-  color: #588368;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.welcome h2 {
-  margin: 10px 0 14px;
-  font-size: 26px;
-  font-weight: 650;
-  letter-spacing: -0.8px;
-}
-
-.welcomeText {
-  max-width: 320px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.9;
-}
-
-.welcomeNote {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 38px;
-  color: #728778;
-  font-size: 10px;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 @media (max-width: 760px) {
   .header {
-    gap: 10px;
-    min-height: 73px;
-    padding: 12px 15px;
+    padding: 10px 12px;
   }
 
   .back {
-    display: grid;
-  }
-
-  .headerBadge {
-    display: none;
+    display: block;
   }
 
   .messages {
-    padding: 15px;
+    padding: 12px;
   }
 
   .composer {
-    padding: 13px 14px max(10px, env(safe-area-inset-bottom));
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
   }
 
   .composeForm {
     gap: 8px;
-  }
-
-  .composeForm textarea {
-    font-size: 16px;
-  }
-
-  .composerHelp {
-    gap: 8px;
-    padding-right: 0;
-    font-size: 9px;
-  }
-
-  .historyNote {
-    font-size: 10px;
   }
 }

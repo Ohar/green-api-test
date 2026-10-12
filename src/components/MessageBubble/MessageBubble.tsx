@@ -1,4 +1,3 @@
-import { Icon } from '../Icon'
 import { messageStatusLabels, messageTime } from './constants/statuses'
 import type { MessageBubbleProps } from './index'
 import styles from './MessageBubble.module.css'
@@ -22,9 +21,6 @@ export function MessageBubble({ message, onRetry }: MessageBubbleProps) {
           </time>
           {outgoing && (
             <span className={styles.status} data-state={message.status}>
-              {['delivered', 'read'].includes(message.status) && (
-                <Icon name="check" size={13} />
-              )}
               {messageStatusLabels[message.status]}
             </span>
           )}
