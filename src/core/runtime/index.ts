@@ -5,106 +5,119 @@ import { initialState } from '../store/helpers'
 import { errorMessage } from '../helpers/errors'
 import { validateCredentials } from '../helpers/validation'
 import { selectChat, setDraft } from '../store/actions'
+import type { Messenger } from '../../messengers/types'
+import type { SessionDependencies } from '../session/types'
 
-export const chatStore = createChatStore()
+export function createChatRuntime(
+  messenger: Messenger, dependencies?: SessionDependencies,
+) {
+  const chatStore = createChatStore()
 
-let session: ChatSession | undefined
+  let session: ChatSession | undefined
 
-export async function connect(credentials: Credentials): Promise<void> {
-  if (chatStore.getState().connecting) {
-    return
-  }
-
-  disconnect()
-  chatStore.setState({ connecting: true, connectionError: '' })
-
-  let candidate: ChatSession | undefined
-
-  try {
-    candidate = new ChatSession(validateCredentials(credentials), chatStore)
-    session = candidate
-
-    await candidate.open()
-  } catch (error) {
-    if (session === candidate) {
-      candidate?.stop()
-      chatStore.setState({
-        status: 'disconnected',
-        connectionError: errorMessage(error),
-      })
+  async function connect(credentials: Credentials): Promise<void> {
+    if (chatStore.getState().connecting) {
+      return
     }
-  } finally {
-    if (session === candidate) {
-      chatStore.setState({ connecting: false })
-    }
-  }
-}
 
-export function disconnect(): void {
-  const previous = session
+    disconnect()
+    chatStore.setState({ connecting: true, connectionError: '' })
 
-  session = undefined
+    let candidate: ChatSession | undefined
 
-  previous?.stop()
-  chatStore.setState(initialState(), true)
-}
+    try {
+      candidate = new ChatSession(
+        validateCredentials(credentials), chatStore, messenger, dependencies,
+      )
+      session = candidate
 
-export async function resume(): Promise<void> {
-  const current = session
-
-  if (!current || chatStore.getState().connecting
-    || chatStore.getState().requiresReconnect) {
-    return
-  }
-
-  chatStore.setState({ connecting: true })
-
-  try {
-    await current.open()
-  } catch (error) {
-    if (current === session) {
-      chatStore.setState({
-        status: 'error', statusMessage: errorMessage(error),
-      })
-    }
-  } finally {
-    if (current === session) {
-      chatStore.setState({ connecting: false })
+      await candidate.open()
+    } catch (error) {
+      if (session === candidate) {
+        candidate?.stop()
+        chatStore.setState({
+          status: 'disconnected',
+          connectionError: errorMessage(error),
+        })
+      }
+    } finally {
+      if (session === candidate) {
+        chatStore.setState({ connecting: false })
+      }
     }
   }
-}
 
-export async function createChat(phone: string): Promise<void> {
-  await session?.createChat(phone)
-}
+  function disconnect(): void {
+    const previous = session
 
-export async function send(): Promise<void> {
-  const chatId = chatStore.getState().selectedChatId
+    session = undefined
 
-  if (chatId) {
-    await session?.send(chatId)
+    previous?.stop()
+    chatStore.setState(initialState(), true)
   }
-}
 
-export function select(chatId: string | null): void {
-  selectChat(chatStore, chatId)
-}
+  async function resume(): Promise<void> {
+    const current = session
 
-export function draft(text: string): void {
-  const chatId = chatStore.getState().selectedChatId
+    if (!current || chatStore.getState().connecting
+      || chatStore.getState().requiresReconnect) {
+      return
+    }
 
-  if (chatId) {
-    setDraft(chatStore, chatId, text)
+    chatStore.setState({ connecting: true })
+
+    try {
+      await current.open()
+    } catch (error) {
+      if (current === session) {
+        chatStore.setState({
+          status: 'error', statusMessage: errorMessage(error),
+        })
+      }
+    } finally {
+      if (current === session) {
+        chatStore.setState({ connecting: false })
+      }
+    }
   }
-}
 
-export function retry(localId: string): void {
-  const state = chatStore.getState()
-  const message = state.messages.find((item) => item.localId === localId)
-  const chat = state.chats.find((item) => item.chatId === message?.chatId)
+  async function createChat(phone: string): Promise<void> {
+    await session?.createChat(phone)
+  }
 
-  if (message && chat) {
-    select(chat.chatId)
-    draft(chat.draft ? `${chat.draft}\n${message.text}` : message.text)
+  async function send(): Promise<void> {
+    const chatId = chatStore.getState().selectedChatId
+
+    if (chatId) {
+      await session?.send(chatId)
+    }
+  }
+
+  function select(chatId: string | null): void {
+    selectChat(chatStore, chatId)
+  }
+
+  function draft(text: string): void {
+    const chatId = chatStore.getState().selectedChatId
+
+    if (chatId) {
+      setDraft(chatStore, chatId, text)
+    }
+  }
+
+  function retry(localId: string): void {
+    const state = chatStore.getState()
+    const message = state.messages.find((item) => item.localId === localId)
+    const chat = state.chats.find((item) => item.chatId === message?.chatId)
+
+    if (message && chat) {
+      select(chat.chatId)
+      draft(chat.draft ? `${chat.draft}\n${message.text}` : message.text)
+    }
+  }
+
+  return {
+    chatStore, connect, disconnect, resume, createChat, send,
+    select, draft, retry,
   }
 }

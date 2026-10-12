@@ -14,6 +14,7 @@ export type ConnectionStatus =
 export type MessageStatus =
   | 'sending'
   | 'accepted'
+  | 'sent'
   | 'delivered'
   | 'read'
   | 'failed'
@@ -23,6 +24,7 @@ export type MessageStatus =
 
 export interface Chat {
   chatId: string
+  aliases?: string[]
   name: string
   phone?: string
   draft: string

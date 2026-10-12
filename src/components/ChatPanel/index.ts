@@ -3,6 +3,7 @@ import type { Chat, Message } from '../../core/types'
 export { ChatPanel } from './ChatPanel'
 
 export interface ChatPanelProps {
+  maxMessageLength: number
   chat: Chat | null
   messages: Message[]
   sending: boolean

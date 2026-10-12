@@ -1,5 +1,4 @@
 import type { Credentials } from '../types'
-import { MAX_MESSAGE_LENGTH } from '../constants'
 import { ChatError } from './errors'
 
 export function record(value: unknown): Record<string, unknown> {
@@ -16,16 +15,6 @@ export function nonEmptyString(value: unknown): string {
   }
 
   return value
-}
-
-export function canonicalChatId(value: unknown): string {
-  const chatId = nonEmptyString(value)
-
-  if (!/^-?[1-9]\d*$/.test(chatId)) {
-    throw new ChatError('Неожиданный идентификатор Telegram-чата.')
-  }
-
-  return chatId
 }
 
 export function normalizePhone(input: string): string {
@@ -77,12 +66,12 @@ export function validateCredentials(input: Credentials): Credentials {
   return { apiUrl: url.origin, idInstance, apiTokenInstance }
 }
 
-export function validateMessage(text: string): void {
+export function validateMessage(text: string, maxLength: number): void {
   if (!text.trim()) {
     throw new ChatError('Введите сообщение.')
   }
 
-  if (text.length > MAX_MESSAGE_LENGTH) {
-    throw new ChatError('Сообщение не должно превышать 4096 символов.')
+  if (text.length > maxLength) {
+    throw new ChatError(`Сообщение не должно превышать ${maxLength} символов.`)
   }
 }

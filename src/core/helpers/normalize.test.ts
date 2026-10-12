@@ -1,10 +1,11 @@
+import { telegram } from '../../messengers/telegram'
 import { describe, expect, it } from 'vitest'
 import { credentials, textEvent } from '../../test/fixtures'
 import { normalizeEvent } from './normalize'
 
 describe('Telegram event contracts', () => {
   it('routes text by sender chat and keeps unix timestamps', () => {
-    const event = normalizeEvent(textEvent(), credentials.idInstance)
+    const event = normalizeEvent(textEvent(), credentials.idInstance, telegram)
 
     expect(event).toMatchObject({
       kind: 'message',
@@ -24,7 +25,8 @@ describe('Telegram event contracts', () => {
       },
     }
 
-    expect(normalizeEvent(input, credentials.idInstance)).toMatchObject({
+    expect(normalizeEvent(input, credentials.idInstance,
+      telegram)).toMatchObject({
       kind: 'message',
       message: { direction: 'outgoing', text: 'Ссылка https://example.com' },
     })
@@ -39,20 +41,22 @@ describe('Telegram event contracts', () => {
       status: 'noAccount',
     }
 
-    expect(normalizeEvent(input, credentials.idInstance)).toMatchObject({
+    expect(normalizeEvent(input, credentials.idInstance,
+      telegram)).toMatchObject({
       kind: 'status', status: 'noAccount', chatId: '79991234567@c.us',
     })
   })
 
   it('skips groups and media without pretending they are text', () => {
-    expect(normalizeEvent(textEvent('1', '-123'), credentials.idInstance))
+    expect(normalizeEvent(textEvent('1', '-123'), credentials.idInstance,
+      telegram))
       .toEqual({ kind: 'ignored' })
     expect(normalizeEvent({
       ...textEvent(), messageData: { typeMessage: 'imageMessage' },
-    }, credentials.idInstance)).toEqual({ kind: 'ignored' })
+    }, credentials.idInstance, telegram)).toEqual({ kind: 'ignored' })
   })
 
   it('rejects another instance before acknowledging', () => {
-    expect(() => normalizeEvent(textEvent(), 'different')).toThrow()
+    expect(() => normalizeEvent(textEvent(), 'different', telegram)).toThrow()
   })
 })

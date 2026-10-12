@@ -1,3 +1,4 @@
+import { telegram } from '../messengers/telegram'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { credentials } from '../test/fixtures'
 import { createApi } from './client'
@@ -12,7 +13,7 @@ describe('GREEN-API transport', () => {
 
     vi.stubGlobal('fetch', fetch)
 
-    const api = createApi(credentials, new AbortController().signal)
+    const api = createApi(credentials, new AbortController().signal, telegram)
 
     await expect(api.check('79991234567')).resolves.toMatchObject({
       chatId: '10001', phone: '79991234567',
@@ -31,7 +32,7 @@ describe('GREEN-API transport', () => {
       .mockResolvedValueOnce(new Response(''))
       .mockResolvedValueOnce(new Response('null')))
 
-    const api = createApi(credentials, new AbortController().signal)
+    const api = createApi(credentials, new AbortController().signal, telegram)
 
     await expect(api.receive()).resolves.toBeNull()
     await expect(api.receive()).resolves.toBeNull()
@@ -40,7 +41,7 @@ describe('GREEN-API transport', () => {
   it('treats a malformed send success as an unknown result', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('null')))
 
-    const api = createApi(credentials, new AbortController().signal)
+    const api = createApi(credentials, new AbortController().signal, telegram)
 
     await expect(api.send('10001', 'Привет')).rejects.toMatchObject({
       ambiguous: true,
@@ -52,7 +53,7 @@ describe('GREEN-API transport', () => {
       `Failed URL with secret ${credentials.apiTokenInstance}`,
     )))
 
-    const api = createApi(credentials, new AbortController().signal)
+    const api = createApi(credentials, new AbortController().signal, telegram)
 
     await expect(api.state()).rejects.not.toThrow(credentials.apiTokenInstance)
   })
@@ -64,7 +65,7 @@ describe('GREEN-API transport', () => {
       new Response(JSON.stringify(response)),
     ))
 
-    const api = createApi(credentials, new AbortController().signal)
+    const api = createApi(credentials, new AbortController().signal, telegram)
 
     await expect(api.check('79991234567'))
       .rejects.toThrow('ограничены Telegram')

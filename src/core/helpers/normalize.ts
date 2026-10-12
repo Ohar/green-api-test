@@ -1,14 +1,17 @@
 import type { ChatEvent, MessageStatus } from '../types'
+import type { Messenger } from '../../messengers/types'
 import { MESSAGE_EVENTS, SERVER_STATUSES } from '../constants'
 import { ChatError } from './errors'
-import { canonicalChatId, nonEmptyString, record } from './validation'
+import { nonEmptyString, record } from './validation'
 
-export function normalizeEvent(body: unknown, instanceId: string): ChatEvent {
+export function normalizeEvent(
+  body: unknown, instanceId: string, messenger: Messenger,
+): ChatEvent {
   const data = record(body)
   const instance = record(data.instanceData)
 
   if (String(instance.idInstance) !== instanceId
-    || instance.typeInstance !== 'telegram') {
+    || instance.typeInstance !== messenger.id) {
     throw new ChatError('Уведомление другого инстанса. Приём остановлен.')
   }
 
@@ -25,14 +28,18 @@ export function normalizeEvent(body: unknown, instanceId: string): ChatEvent {
   if (type === 'outgoingMessageStatus') {
     const status = nonEmptyString(data.status)
 
+    if (status === 'suspended' || status === 'yellowCard') {
+      return { kind: 'state', state: 'suspended' }
+    }
+
     if (!SERVER_STATUSES.includes(status)) {
       return { kind: 'ignored' }
     }
 
     const chatId = nonEmptyString(data.chatId)
 
-    if (!/^[1-9]\d*@c\.us$/.test(chatId)) {
-      canonicalChatId(chatId)
+    if (!/^[1-9]\d*@c\.us$/.test(chatId) && !messenger.chatId(chatId)) {
+      return { kind: 'ignored' }
     }
 
     return {
@@ -49,15 +56,15 @@ export function normalizeEvent(body: unknown, instanceId: string): ChatEvent {
   }
 
   const sender = record(data.senderData)
-  const chatId = canonicalChatId(sender.chatId)
+  const chatId = messenger.chatId(sender.chatId)
 
-  if (chatId.startsWith('-')) {
+  if (!chatId) {
     return { kind: 'ignored' }
   }
 
   const content = record(data.messageData)
 
-  if (!['textMessage', 'extendedTextMessage'].includes(
+  if (!['textMessage', 'extendedTextMessage', 'quotedMessage'].includes(
     String(content.typeMessage),
   )) {
     return { kind: 'ignored' }
@@ -77,9 +84,9 @@ export function normalizeEvent(body: unknown, instanceId: string): ChatEvent {
 
   return {
     kind: 'message',
-    name: typeof sender.chatName === 'string' && sender.chatName
-      ? sender.chatName
-      : chatId,
+    name: [sender.chatName, sender.senderContactName, sender.senderName]
+      .find((value): value is string => typeof value === 'string' && !!value)
+      ?? chatId,
     message: {
       localId: `${chatId}:${idMessage}`,
       idMessage,

@@ -17,7 +17,7 @@
     "check:architecture": "node scripts/check-architecture.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "node scripts/build-test-variants.mjs && playwright test",
     "check": "npm run lint && npm test && npm run build",
     "prepare": "node scripts/install-hooks.mjs",
     "preversion": "node scripts/check-release-ready.mjs && npm run verify",

@@ -3,6 +3,7 @@ import type { Message } from '../../../core/types'
 export const messageStatusLabels: Record<Message['status'], string> = {
   sending: 'Отправляется',
   accepted: 'Принято сервисом',
+  sent: 'Отправлено',
   delivered: 'Доставлено',
   read: 'Прочитано',
   failed: 'Не отправлено',

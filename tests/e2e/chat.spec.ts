@@ -1,6 +1,34 @@
 import { expect, test } from '@playwright/test'
 import { connect, createChat, mockGreenApi } from './helpers/greenApi'
 
+test('WhatsApp-only credentials are clearly labeled', async ({ page }) => {
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: 'Инстанс WhatsApp' }))
+    .toBeVisible()
+  await expect(page.getByRole('region', { name: 'Telegram' })).toHaveCount(0)
+  await expect(page.getByRole('form')).toHaveCount(1)
+  await expect(page.locator('header, footer')).toHaveCount(0)
+})
+
+test('WhatsApp allows text beyond the Telegram limit', async ({ page }) => {
+  const api = await mockGreenApi(page)
+
+  await connect(page)
+  await createChat(page)
+  expect(api.checked).toEqual([{ chatId: '79991234567@c.us' }])
+
+  const input = page.getByLabel('Сообщение', { exact: true })
+  const send = page.getByRole('button', { name: 'Отправить', exact: true })
+
+  await input.fill('я'.repeat(20001))
+  await expect(send).toBeDisabled()
+  await expect(page.getByRole('alert')).toContainText('20000')
+  await input.fill('я'.repeat(5000))
+  await send.click()
+  await expect.poll(() => api.sent.length).toBe(1)
+  expect(api.sent[0]?.message).toHaveLength(5000)
+})
+
 test('phone → send → receive; text stays safe and nothing persists',
   async ({ page }, testInfo) => {
     const api = await mockGreenApi(page)
@@ -11,24 +39,27 @@ test('phone → send → receive; text stays safe and nothing persists',
     await page.getByLabel('Сообщение', { exact: true }).fill('Привет 🙂')
     await page.getByRole('button', { name: 'Отправить', exact: true }).click()
     await expect.poll(() => api.sent.length).toBe(1)
-    expect(api.sent[0]).toEqual({ chatId: '10001', message: 'Привет 🙂' })
+    expect(api.sent[0]).toEqual({ chatId: '10001@lid', message: 'Привет 🙂' })
 
-    api.incoming('<script>alert("xss")</script> Ответ из Telegram')
+    api.incoming('<script>alert("xss")</script> Ответ из WhatsApp')
 
     await expect(page.getByRole('log').getByText(
-      '<script>alert("xss")</script> Ответ из Telegram',
+      '<script>alert("xss")</script> Ответ из WhatsApp',
       { exact: true })).toBeVisible()
     await expect.poll(() => api.queue.length).toBe(0)
     expect(await page.evaluate(() => ({
       local: localStorage.length, session: sessionStorage.length,
     }))).toEqual({ local: 0, session: 0 })
 
-    if (testInfo.project.name === 'mobile') {
+    if (testInfo.project.name.endsWith('mobile')) {
       await page.getByRole('button', { name: /Назад/ }).click()
     }
 
     await page.getByRole('button', { name: 'Отключиться' }).click()
-    await expect(page.getByLabel('Токен API', { exact: true })).toHaveValue('')
+    await expect(page.getByLabel('Токен API (apiTokenInstance)', {
+      exact: true,
+    }))
+      .toHaveValue('')
 
     const polls = api.polls()
 
@@ -53,9 +84,10 @@ test('only one tab consumes the queue', async ({ context, page }) => {
 
 test('rejects unsafe API destinations before any request', async ({ page }) => {
   await page.goto('./')
-  await page.getByLabel('Адрес API').fill('https://evil.example.com')
-  await page.getByLabel('ID инстанса').fill('4100000000')
-  await page.getByLabel('Токен API', { exact: true }).fill('test-token-invalid')
+  await page.getByLabel('Адрес API (apiUrl)').fill('https://evil.example.com')
+  await page.getByLabel('ID инстанса (idInstance)').fill('4100000000')
+  await page.getByLabel('Токен API (apiTokenInstance)', { exact: true })
+    .fill('test-token-invalid')
   await page.getByRole('button', { name: 'Подключиться', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('HTTPS API-хост')
 })
@@ -69,7 +101,7 @@ test('authorization loss is visible in the chat list', async ({ page }) => {
   })).toBeVisible()
   api.queue.push({ receiptId: 50, body: {
     typeWebhook: 'stateInstanceChanged',
-    instanceData: { idInstance: 4100000000, typeInstance: 'telegram' },
+    instanceData: { idInstance: 1100000000, typeInstance: 'whatsapp' },
     stateInstance: 'notAuthorized',
   } })
   await expect(page.getByRole('status'))

@@ -30,7 +30,7 @@ export function MessageBubble({ message, onRetry }: MessageBubbleProps) {
         <div className={styles.failure} role="status">
           <p>
             {message.status === 'unknown'
-              ? 'Перед повтором проверьте Telegram: возможен дубль.'
+              ? 'Перед повтором проверьте мессенджер: возможен дубль.'
               : message.error || 'Не удалось отправить сообщение.'}
           </p>
           {onRetry && (

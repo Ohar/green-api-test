@@ -158,7 +158,7 @@
   text-align: center;
 }
 
-@media (max-width: 760px) {
+@container (max-width: 760px) {
   .sidebar {
     border: 0;
   }

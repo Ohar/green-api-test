@@ -7,12 +7,14 @@ import {
 } from '../../helpers/messages'
 import { validateMessage } from '../../helpers/validation'
 import { setDraft } from '../../store/actions'
+import { resolveChatId } from '../../store/contacts'
 
 export async function sendMessage(
   store: ChatStore,
   api: GreenApi,
   signal: AbortSignal,
   chatId: string,
+  maxMessageLength: number,
 ): Promise<void> {
   const state = store.getState()
   const chat = state.chats.find((item) => item.chatId === chatId)
@@ -22,7 +24,7 @@ export async function sendMessage(
   }
 
   try {
-    validateMessage(chat.draft)
+    validateMessage(chat.draft, maxMessageLength)
   } catch (error) {
     store.setState({ sendErrors: {
       ...state.sendErrors, [chatId]: errorMessage(error),
@@ -53,9 +55,10 @@ export async function sendMessage(
 
     signal.throwIfAborted()
     store.setState((current) => {
-      const echo = current.messages.find((item) => item.chatId === chatId
+      const resolvedId = resolveChatId(current.chats, chatId)
+      const echo = current.messages.find((item) => item.chatId === resolvedId
         && item.idMessage === idMessage)
-      const status = current.pendingStatuses[serverKey(chatId, idMessage)]
+      const status = current.pendingStatuses[serverKey(resolvedId, idMessage)]
         ?? echo?.status ?? 'accepted'
       const messages = sortMessages(current.messages
         .filter((item) => item.localId !== echo?.localId)
@@ -66,7 +69,7 @@ export async function sendMessage(
 
       return {
         messages,
-        chats: current.chats.map((item) => item.chatId === chatId
+        chats: current.chats.map((item) => item.chatId === resolvedId
           ? withLatestMessage(item, messages)
           : item),
       }
@@ -78,7 +81,7 @@ export async function sendMessage(
 
     const unknown = !(error instanceof ChatError) || error.ambiguous
     const explanation = unknown
-      ? 'Результат неизвестен. Проверьте Telegram перед повтором.'
+      ? 'Результат неизвестен. Проверьте мессенджер перед повтором.'
       : errorMessage(error)
 
     store.setState((current) => ({
@@ -86,12 +89,17 @@ export async function sendMessage(
         ? { ...item, status: unknown ? 'unknown' : 'failed',
           error: explanation }
         : item),
-      sendErrors: { ...current.sendErrors, [chatId]: explanation },
+      sendErrors: {
+        ...current.sendErrors,
+        [resolveChatId(current.chats, chatId)]: explanation,
+      },
     }))
   } finally {
     if (!signal.aborted) {
       store.setState((current) => ({
-        sending: { ...current.sending, [chatId]: false },
+        sending: {
+          ...current.sending, [resolveChatId(current.chats, chatId)]: false,
+        },
       }))
     }
   }

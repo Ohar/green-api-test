@@ -19,7 +19,11 @@ export function mergeStatus(current: MessageStatus, next: MessageStatus) {
     return current
   }
 
-  if (current === 'delivered' && next === 'accepted') {
+  if (current === 'delivered' && ['accepted', 'sent'].includes(next)) {
+    return current
+  }
+
+  if (current === 'sent' && next === 'accepted') {
     return current
   }
 

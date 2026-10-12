@@ -1,5 +1,6 @@
 import type { ChatEvent, Contact, MessageStatus } from '../types'
 import type { ChatStore } from './index'
+import { mergeContact, resolveChatId } from './contacts'
 import {
   mergeStatus, newChat, nextMessageOrder, serverKey, sortMessages,
   withLatestMessage,
@@ -25,15 +26,7 @@ export function setDraft(
 }
 
 export function addContact(store: ChatStore, contact: Contact): void {
-  store.setState((state) => ({
-    chats: state.chats.some((chat) => chat.chatId === contact.chatId)
-      ? state.chats.map((chat) => chat.chatId === contact.chatId
-        ? { ...chat, phone: contact.phone, name: contact.name || chat.name }
-        : chat)
-      : [...state.chats, newChat(contact)],
-  }))
-
-  selectChat(store, contact.chatId)
+  store.setState((state) => mergeContact(state, contact))
 }
 
 export function applyStatus(
@@ -42,27 +35,14 @@ export function applyStatus(
   idMessage: string | undefined,
   status: MessageStatus,
 ): void {
-  if (chatId.endsWith('@c.us')) {
-    const phone = chatId.slice(0, -5)
-    const chat = store.getState().chats.find((item) => item.phone === phone)
-
-    if (!chat) {
-      store.setState({
-        statusMessage: 'Не удалось отправить сообщение по номеру телефона.',
-      })
-
-      return
-    }
-
-    chatId = chat.chatId
-  }
+  chatId = resolveChatId(store.getState().chats, chatId)
 
   if (!idMessage) {
     if (status === 'failed' || status === 'noAccount') {
       store.setState((state) => ({
         sendErrors: {
           ...state.sendErrors,
-          [chatId]: 'Telegram не смог отправить сообщение в этот чат.',
+          [chatId]: 'Мессенджер не смог отправить сообщение в этот чат.',
         },
       }))
     }
@@ -89,7 +69,10 @@ export function applyMessage(
   event: Extract<ChatEvent, { kind: 'message' }>,
 ): void {
   store.setState((state) => {
-    const message = event.message
+    const message = {
+      ...event.message,
+      chatId: resolveChatId(state.chats, event.message.chatId),
+    }
     const key = serverKey(message.chatId, message.idMessage ?? '')
     const existing = state.messages.find((item) =>
       item.chatId === message.chatId && item.idMessage === message.idMessage)

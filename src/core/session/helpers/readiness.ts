@@ -1,12 +1,15 @@
 import type { GreenApi } from '../../../api/types'
-import { INSTANCE_STATES, REQUIRED_SETTINGS } from '../../constants'
+import type { Messenger } from '../../../messengers/types'
+import { REQUIRED_SETTINGS } from '../../constants'
 import { ChatError } from '../../helpers/errors'
 
-export async function assertReady(api: GreenApi): Promise<void> {
+export async function assertReady(
+  api: GreenApi, messenger: Messenger,
+): Promise<void> {
   const state = await api.state()
 
   if (state !== 'authorized') {
-    throw new ChatError(INSTANCE_STATES[state]
+    throw new ChatError(messenger.instanceStates[state]
       ?? 'Инстанс не готов. Проверьте его в кабинете GREEN-API.')
   }
 

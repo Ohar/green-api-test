@@ -1,5 +1,3 @@
-export const MAX_MESSAGE_LENGTH = 4096
-
 export const REQUEST_TIMEOUT = 15_000
 
 export const RECEIVE_TIMEOUT = 30
@@ -19,11 +17,10 @@ export const REQUIRED_SETTINGS = [
 ] as const
 
 export const INSTANCE_STATES: Record<string, string> = {
-  notAuthorized: 'Авторизуйте Telegram в кабинете GREEN-API.',
-  pendingPassword: 'Завершите двухфакторный вход в кабинете GREEN-API.',
+  notAuthorized: 'Авторизуйте аккаунт в кабинете GREEN-API.',
   starting: 'Инстанс запускается. Повторите подключение через минуту.',
   blocked: 'Аккаунт заблокирован. Проверьте кабинет GREEN-API.',
-  suspended: 'На аккаунт наложены ограничения Telegram.',
+  suspended: 'На аккаунт наложены ограничения мессенджера.',
 }
 
 export const MESSAGE_EVENTS = [
@@ -32,4 +29,6 @@ export const MESSAGE_EVENTS = [
   'outgoingMessageReceived',
 ]
 
-export const SERVER_STATUSES = ['delivered', 'read', 'failed', 'noAccount']
+export const SERVER_STATUSES = [
+  'sent', 'delivered', 'read', 'failed', 'noAccount',
+]

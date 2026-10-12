@@ -1,3 +1,4 @@
+import { telegram } from '../../../messengers/telegram'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { GreenApi } from '../../../api/types'
 import { credentials, deferred, textEvent } from '../../../test/fixtures'
@@ -21,7 +22,7 @@ describe('notification queue', () => {
     store.setState({ status: 'connected' })
 
     const pending = expect(poll(api, store, new AbortController().signal,
-      credentials.idInstance)).rejects.toThrow('Авторизуйте')
+      credentials.idInstance, telegram)).rejects.toThrow('Авторизуйте')
 
     await vi.waitFor(() => expect(api.acknowledge).toHaveBeenCalled())
     expect(store.getState()).toMatchObject({
@@ -52,7 +53,8 @@ describe('notification queue', () => {
         }),
       acknowledge: vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true),
     } as unknown as GreenApi
-    const pending = poll(api, store, controller.signal, credentials.idInstance)
+    const pending = poll(api, store, controller.signal, credentials.idInstance,
+      telegram)
 
     await vi.runAllTimersAsync()
     await pending
@@ -70,7 +72,7 @@ describe('notification queue', () => {
       acknowledge: vi.fn().mockResolvedValue(false),
     } as unknown as GreenApi
     const pending = expect(poll(api, createChatStore(),
-      new AbortController().signal, credentials.idInstance))
+      new AbortController().signal, credentials.idInstance, telegram))
       .rejects.toThrow('Приём остановлен')
 
     await vi.runAllTimersAsync()

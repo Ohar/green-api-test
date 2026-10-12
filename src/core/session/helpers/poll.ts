@@ -1,6 +1,7 @@
 import type { GreenApi } from '../../../api/types'
 import type { ChatStore } from '../../store'
-import { MAX_ACK_ATTEMPTS, INSTANCE_STATES } from '../../constants'
+import type { Messenger } from '../../../messengers/types'
+import { MAX_ACK_ATTEMPTS } from '../../constants'
 import { ChatError, errorMessage } from '../../helpers/errors'
 import { normalizeEvent } from '../../helpers/normalize'
 import { retryDelay, wait } from '../../helpers/timing'
@@ -11,6 +12,7 @@ export async function poll(
   store: ChatStore,
   signal: AbortSignal,
   instanceId: string,
+  messenger: Messenger,
 ): Promise<void> {
   let failures = 0
   let previousReceipt: number | undefined
@@ -39,7 +41,7 @@ export async function poll(
         )
       }
 
-      const event = normalizeEvent(envelope.body, instanceId)
+      const event = normalizeEvent(envelope.body, instanceId, messenger)
       let terminal: string | undefined
 
       if (event.kind === 'message') {
@@ -51,7 +53,8 @@ export async function poll(
       }
 
       if (event.kind === 'state' && event.state !== 'authorized') {
-        terminal = (INSTANCE_STATES[event.state] ?? 'Авторизация изменилась.')
+        terminal = (messenger.instanceStates[event.state]
+          ?? 'Авторизация изменилась.')
           + ' Отключитесь и подключитесь заново.'
       }
 

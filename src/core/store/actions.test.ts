@@ -1,3 +1,4 @@
+import { telegram } from '../../messengers/telegram'
 import { describe, expect, it } from 'vitest'
 import { credentials, textEvent } from '../../test/fixtures'
 import { normalizeEvent } from '../helpers/normalize'
@@ -12,7 +13,7 @@ describe('message identity and status reconciliation', () => {
       const event = normalizeEvent({
         ...textEvent(String(index), '10001', text),
         timestamp: 1_792_000_000 + index,
-      }, credentials.idInstance)
+      }, credentials.idInstance, telegram)
 
       if (event.kind === 'message') {
         applyMessage(store, event)
@@ -32,7 +33,7 @@ describe('message identity and status reconciliation', () => {
 
     for (const chatId of ['10001', '10001', '20002']) {
       const event = normalizeEvent(textEvent('same', chatId),
-        credentials.idInstance)
+        credentials.idInstance, telegram)
 
       if (event.kind === 'message') {
         applyMessage(store, event)
@@ -49,7 +50,7 @@ describe('message identity and status reconciliation', () => {
     applyStatus(store, '10001', '1', 'read')
 
     const event = normalizeEvent(textEvent('1', '10001', 'Привет',
-      'outgoingAPIMessageReceived'), credentials.idInstance)
+      'outgoingAPIMessageReceived'), credentials.idInstance, telegram)
 
     if (event.kind === 'message') {
       applyMessage(store, event)

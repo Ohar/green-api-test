@@ -1,3 +1,4 @@
+import { telegram } from '../../../messengers/telegram'
 import { describe, expect, it, vi } from 'vitest'
 import type { GreenApi } from '../../../api/types'
 import { credentials, deferred, textEvent } from '../../../test/fixtures'
@@ -22,7 +23,8 @@ describe('send races', () => {
       store.setState({ status: 'connected' })
       setDraft(store, '10001', 'Вопрос')
 
-      const pending = sendMessage(store, api, controller.signal, '10001')
+      const pending = sendMessage(store, api, controller.signal, '10001',
+        telegram.maxMessageLength)
 
       clock.mockRestore()
 
@@ -36,7 +38,7 @@ describe('send races', () => {
         ['reply-1', 'Ответ', 'incomingMessageReceived'],
       ]) {
         const event = normalizeEvent(textEvent(id, '10001', text, type),
-          credentials.idInstance)
+          credentials.idInstance, telegram)
 
         if (event.kind === 'message') {
           applyMessage(store, event)
@@ -62,14 +64,16 @@ describe('send races', () => {
     store.setState({ status: 'connected' })
     setDraft(store, '10001', 'Тест')
 
-    const pending = sendMessage(store, api, controller.signal, '10001')
+    const pending = sendMessage(store, api, controller.signal, '10001',
+      telegram.maxMessageLength)
 
-    await sendMessage(store, api, controller.signal, '10001')
+    await sendMessage(store, api, controller.signal, '10001',
+      telegram.maxMessageLength)
     setDraft(store, '10001', 'Следующий текст')
     applyStatus(store, '10001', 'server-1', 'read')
 
     const echo = normalizeEvent(textEvent('server-1', '10001', 'Тест',
-      'outgoingAPIMessageReceived'), credentials.idInstance)
+      'outgoingAPIMessageReceived'), credentials.idInstance, telegram)
 
     if (echo.kind === 'message') {
       applyMessage(store, echo)
@@ -93,7 +97,8 @@ describe('send races', () => {
     addContact(store, { chatId: '1', name: 'Чат', phone: '79991234567' })
     store.setState({ status: 'connected' })
     setDraft(store, '1', 'Сохранить')
-    await sendMessage(store, api, new AbortController().signal, '1')
+    await sendMessage(store, api, new AbortController().signal, '1',
+      telegram.maxMessageLength)
 
     expect(api.send).toHaveBeenCalledTimes(1)
     expect(store.getState().messages[0]).toMatchObject({
@@ -111,7 +116,8 @@ describe('send races', () => {
     store.setState({ status: 'connected' })
     setDraft(store, '1', 'Текст')
 
-    const pending = sendMessage(store, api, controller.signal, '1')
+    const pending = sendMessage(store, api, controller.signal, '1',
+      telegram.maxMessageLength)
 
     controller.abort()
     store.setState({ messages: [], chats: [] })

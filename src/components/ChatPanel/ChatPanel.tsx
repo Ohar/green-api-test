@@ -1,6 +1,5 @@
 import { Fragment, useId } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
-import { MAX_MESSAGE_LENGTH } from '../../core/constants'
 import { MessageBubble } from '../MessageBubble'
 import { dayLabel } from './helpers/dayLabel'
 import { useComposer } from './hooks/useComposer'
@@ -10,6 +9,7 @@ import styles from './ChatPanel.module.css'
 
 export function ChatPanel({
   chat,
+  maxMessageLength,
   messages,
   sending,
   disabled = false,
@@ -21,7 +21,7 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const fieldId = useId()
   const draft = chat?.draft || ''
-  const tooLong = draft.length > MAX_MESSAGE_LENGTH
+  const tooLong = draft.length > maxMessageLength
   const canSend = !sending && !disabled && !tooLong && !!draft.trim()
   const {
     inputRef,
@@ -155,7 +155,7 @@ export function ChatPanel({
             className={styles.limitError}
             role="alert"
           >
-            Сократите сообщение до {MAX_MESSAGE_LENGTH} символов.
+            Сократите сообщение до {maxMessageLength} символов.
           </p>
         )}
       </div>

@@ -10,7 +10,7 @@ export function httpError(status: number, retryAfter: string | null) {
   }
 
   if (status === 469) {
-    return new ChatError('Telegram ограничил запросы. Повторите позже.')
+    return new ChatError('Сервис ограничил запросы. Повторите позже.')
   }
 
   if (status === 429) {

@@ -5,6 +5,7 @@ import type { ConnectionFormProps } from './index'
 import styles from './ConnectionForm.module.css'
 
 export function ConnectionForm({
+  messengerLabel,
   busy,
   error,
   onConnect,
@@ -23,14 +24,17 @@ export function ConnectionForm({
   }
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <form
         onSubmit={handleSubmit}
         className={styles.form}
         aria-label="Подключение"
       >
+        <h1 className={styles.title}>Инстанс {messengerLabel}</h1>
         <div className={styles.field}>
-          <label htmlFor={`${fieldId}-url`}>Адрес API</label>
+          <label htmlFor={`${fieldId}-url`}>
+            Адрес API (<code>apiUrl</code>)
+          </label>
           <input
             id={`${fieldId}-url`}
             type="url"
@@ -48,7 +52,9 @@ export function ConnectionForm({
           />
         </div>
         <div className={styles.field}>
-          <label htmlFor={`${fieldId}-instance`}>ID инстанса</label>
+          <label htmlFor={`${fieldId}-instance`}>
+            ID инстанса (<code>idInstance</code>)
+          </label>
           <input
             id={`${fieldId}-instance`}
             type="text"
@@ -65,7 +71,9 @@ export function ConnectionForm({
           />
         </div>
         <div className={styles.field}>
-          <label htmlFor={`${fieldId}-token`}>Токен API</label>
+          <label htmlFor={`${fieldId}-token`}>
+            Токен API (<code>apiTokenInstance</code>)
+          </label>
           <input
             id={`${fieldId}-token`}
             type="password"
@@ -87,6 +95,6 @@ export function ConnectionForm({
           {busy ? 'Подключение…' : 'Подключиться'}
         </button>
       </form>
-    </main>
+    </div>
   )
 }

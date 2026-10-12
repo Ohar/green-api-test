@@ -1,3 +1,4 @@
+import { telegram } from '../../messengers/telegram'
 import { describe, expect, it } from 'vitest'
 import { credentials } from '../../test/fixtures'
 import {
@@ -32,9 +33,12 @@ describe('connection boundary', () => {
   })
 
   it('rejects empty and oversized text, preserves valid text', () => {
-    expect(() => validateMessage(' \n ')).toThrow()
-    expect(() => validateMessage('я'.repeat(4096))).not.toThrow()
-    expect(() => validateMessage('я'.repeat(4097))).toThrow()
-    expect(() => validateMessage('🙂\nПривет')).not.toThrow()
+    expect(() => validateMessage(' \n ', telegram.maxMessageLength)).toThrow()
+    expect(() => validateMessage('я'.repeat(4096),
+      telegram.maxMessageLength)).not.toThrow()
+    expect(() => validateMessage('я'.repeat(4097),
+      telegram.maxMessageLength)).toThrow()
+    expect(() => validateMessage('🙂\nПривет',
+      telegram.maxMessageLength)).not.toThrow()
   })
 })

@@ -2,6 +2,7 @@ import type { Credentials } from '../types'
 import type { ChatStore } from '../store'
 import type { GreenApi } from '../../api/types'
 import type { SessionDependencies } from './types'
+import type { Messenger } from '../../messengers/types'
 import { DEFAULT_DEPENDENCIES } from './constants'
 import { ChatError, errorMessage } from '../helpers/errors'
 import { normalizePhone } from '../helpers/validation'
@@ -20,9 +21,12 @@ export class ChatSession {
   constructor(
     private readonly credentials: Credentials,
     private readonly store: ChatStore,
+    private readonly messenger: Messenger,
     private readonly dependencies = DEFAULT_DEPENDENCIES,
   ) {
-    this.api = dependencies.apiFactory(credentials, this.controller.signal)
+    this.api = dependencies.apiFactory(
+      credentials, this.controller.signal, messenger,
+    )
   }
 
   async open(): Promise<void> {
@@ -38,7 +42,7 @@ export class ChatSession {
         this.controller.signal,
       )
 
-      await assertReady(this.api)
+      await assertReady(this.api, this.messenger)
 
       this.controller.signal.throwIfAborted()
       this.store.setState({ status: 'connected', statusMessage: '' })
@@ -95,13 +99,14 @@ export class ChatSession {
       return
     }
 
-    await sendMessage(this.store, this.api, this.controller.signal, chatId)
+    await sendMessage(this.store, this.api, this.controller.signal, chatId,
+      this.messenger.maxMessageLength)
   }
 
   private async run(): Promise<void> {
     try {
       await poll(this.api, this.store, this.controller.signal,
-        this.credentials.idInstance)
+        this.credentials.idInstance, this.messenger)
     } catch (error) {
       if (!this.controller.signal.aborted) {
         this.store.setState({

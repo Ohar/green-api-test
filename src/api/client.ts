@@ -1,9 +1,9 @@
 import type { Credentials, Envelope } from '../core/types'
 import type { GreenApi } from './types'
+import type { Messenger } from '../messengers/types'
 import { POLL_TIMEOUT, RECEIVE_TIMEOUT } from '../core/constants'
 import { ChatError } from '../core/helpers/errors'
 import {
-  canonicalChatId,
   nonEmptyString,
   record,
 } from '../core/helpers/validation'
@@ -12,6 +12,7 @@ import { request } from './helpers/request'
 export function createApi(
   credentials: Credentials,
   signal: AbortSignal,
+  messenger: Messenger,
 ): GreenApi {
   return {
     async state() {
@@ -23,39 +24,9 @@ export function createApi(
     async settings() {
       return record(await request(credentials, signal, 'getSettings'))
     },
-    async check(phone) {
-      const data = record(await request(credentials, signal, 'checkAccount', {
-        method: 'POST',
-        body: { phoneNumber: Number(phone) },
-      }))
-
-      if (data.status === false) {
-        const detail = data.data && typeof data.data === 'object'
-          ? record(data.data)
-          : {}
-
-        if (detail.reason === 'rate_limit_exceeded') {
-          throw new ChatError(
-            'Проверки номеров ограничены Telegram. Повторите позже.',
-          )
-        }
-
-        throw new ChatError('Проверка номера недоступна. Повторите позже.')
-      }
-
-      if (data.exist !== true) {
-        throw new ChatError(
-          'Аккаунт не найден по номеру или номер скрыт приватностью.',
-        )
-      }
-
-      return {
-        chatId: canonicalChatId(data.chatId),
-        name: typeof data.username === 'string' && data.username
-          ? data.username
-          : `+${phone}`,
-        phone,
-      }
+    check(phone) {
+      return messenger.check(phone, (operation, options) =>
+        request(credentials, signal, operation, options))
     },
     async send(chatId, text) {
       const value = await request(credentials, signal, 'sendMessage', {
